@@ -17,6 +17,7 @@ private:
     const double SENSOR_1_CAL = 62.75;
     const double SENSOR_2_CAL = 62.75;
     const unsigned long POLLING_PERIOD = 250;   // ms
+    const double POLLING_PERIOD_SECONDS = 0.25; // s
 
     /***** EmonLib instances *****/
     EnergyMonitor emon1;
@@ -25,6 +26,8 @@ private:
     /***** Monitoring variables *****/
     double sensor_1_integration = 0.0;          // watt-second
     double sensor_2_integration = 0.0;          // watt-second
+    double sensor_1_instant_watts   = 0.0;      // watts
+    double sensor_2_instant_watts   = 0.0;      // watts
 
     /***** Timing variables *****/
     unsigned long last_process_time = 0;        // ms
@@ -34,6 +37,9 @@ public:
     void process();
     double sensor_1_watt_seconds();
     double sensor_2_watt_seconds();
+    double sensor_1_watts();
+    double sensor_2_watts();
+    double watts();
     void reset_integration();
 };
 
