@@ -19,7 +19,7 @@ WiFiClient  client;
 
 // Timekeeping globals
 time_t now;
-tm tm;
+struct tm tm;
 
 bool wait_for_ntp = true;
 
@@ -28,6 +28,7 @@ const char * myWriteAPIKey = "UNREALKEY";
 unsigned long last_report_time = 0;
 
 const unsigned long REPORT_PERIOD = 30 * 1000;  // Thirty seconds, ms
+const unsigned long REPORT_WATT_SECONDS = REPORT_PERIOD / 1000;
 
 double daily_KWh = 0.0;
 double monthly_KWh = 0.0;
@@ -103,10 +104,18 @@ void loop()
             Serial.println("#################################################");
         }
 
-        double total_kwatt_hours = watt_seconds_to_kwatt_hours(mainsMonitor.sensor_1_watt_seconds()) +
-                                   watt_seconds_to_kwatt_hours(mainsMonitor.sensor_2_watt_seconds());
-        daily_KWh += total_kwatt_hours;
-        monthly_KWh += total_kwatt_hours;
+        double watts = mainsMonitor.watts();
+        double total_watt_seconds = mainsMonitor.sensor_1_watt_seconds() + mainsMonitor.sensor_2_watt_seconds();
+        double total_kwatt_hours = watt_seconds_to_kwatt_hours(total_watt_seconds);
+
+        // Only report 'real' update to ThingSpeak if more than 30 watt-seconds are used in REPORT_PERIOD
+        if (false && 30 > total_watt_seconds) {
+            watts = 0.0;
+        }
+        else {
+            daily_KWh += total_kwatt_hours;
+            monthly_KWh += total_kwatt_hours;
+        }
 
         Serial.print("Sensor 1 (watt-seconds): ");
         Serial.print(mainsMonitor.sensor_1_watt_seconds());
