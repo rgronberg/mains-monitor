@@ -1,17 +1,21 @@
 //mains-monitor.ino
 
-#include <ESP8266WiFi.h>
+#include <WiFiManager.h>
+// #include <ESP8266WiFi.h>
 
-#define NTP_SERVER "us.pool.ntp.org"
+#include "EmonConfig.hpp"
+
 #include <coredecls.h>  // settimeofday_cb() callback
 #include <time.h>
-#include <TZ.h>
+
 
 // #define PRINT_DEBUG_MESSAGES
 // #define PRINT_HTTP
 #include <ThingSpeak.h>
 
 #include "MainsMonitor.hpp"
+
+EmonConfig emon_config;
 
 MainsMonitor mainsMonitor;
 
@@ -49,6 +53,11 @@ void setup() {
     Serial.begin(115200);
     Serial.println();
 
+    emon_config.begin();
+    emon_config.load_config();
+    Serial.println(emon_config.read_config());
+    emon_config.save_config();
+
     WiFi.begin("SSID", "PASSWORD");
 
     if (WL_CONNECTED != WiFi.status()){
@@ -64,7 +73,7 @@ void setup() {
     settimeofday_cb(time_is_set);
 
     // Configure timezone and NTP server
-    configTime(TZ_America_Los_Angeles, NTP_SERVER);
+    configTime(emon_config.time_zone, emon_config.ntp_server);
 
     while (wait_for_ntp) {
         Serial.println("Waiting for time to be set from NTP");
