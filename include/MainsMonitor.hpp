@@ -13,9 +13,6 @@ private:
     /***** Pins and constants *****/
     const unsigned int SENSOR_PIN = A0;
     const unsigned int SENSOR_SELECT_PIN = 4;
-    const double BASELINE_VOLTAGE = 118.0;
-    const double SENSOR_1_CAL = 62.75;
-    const double SENSOR_2_CAL = 62.75;
     const unsigned long POLLING_PERIOD = 250;   // ms
     const double POLLING_PERIOD_SECONDS = 0.25; // s
 
@@ -24,6 +21,7 @@ private:
     EnergyMonitor emon2;
 
     /***** Monitoring variables *****/
+    double nominal_voltage = 0.0;               // volts
     double sensor_1_integration = 0.0;          // watt-second
     double sensor_2_integration = 0.0;          // watt-second
     double sensor_1_instant_watts   = 0.0;      // watts
@@ -33,7 +31,9 @@ private:
     unsigned long last_process_time = 0;        // ms
     unsigned long integration_duration = 0;     // ms
 public:
-    void begin();
+    void begin(double calibration, double voltage);
+    void calibrate(double calibration);
+    void voltage(double voltage);
     void process();
     double sensor_1_watt_seconds();
     double sensor_2_watt_seconds();

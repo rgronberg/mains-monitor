@@ -4,10 +4,19 @@
 
 #include "MainsMonitor.hpp"
 
-void MainsMonitor::begin() {
+void MainsMonitor::begin(double calibration, double voltage) {
     pinMode(SENSOR_SELECT_PIN, OUTPUT);
-    emon1.current(SENSOR_PIN, SENSOR_1_CAL);
-    emon2.current(SENSOR_PIN, SENSOR_2_CAL);
+    calibrate(calibration);
+    nominal_voltage = voltage;
+}
+
+void MainsMonitor::calibrate(double calibration) {
+    emon1.current(SENSOR_PIN, calibration);
+    emon2.current(SENSOR_PIN, calibration);
+}
+
+void MainsMonitor::voltage(double voltage) {
+    nominal_voltage = voltage;
 }
 
 void MainsMonitor::process() {
@@ -24,11 +33,11 @@ void MainsMonitor::process() {
 }
 
 double MainsMonitor::sensor_1_watt_seconds() {
-    return sensor_1_integration * BASELINE_VOLTAGE;
+    return sensor_1_integration * nominal_voltage;
 }
 
 double MainsMonitor::sensor_2_watt_seconds() {
-    return sensor_2_integration * BASELINE_VOLTAGE;
+    return sensor_2_integration * nominal_voltage;
 }
 
 double MainsMonitor::sensor_1_watts() {

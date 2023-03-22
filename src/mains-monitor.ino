@@ -81,7 +81,7 @@ void setup() {
     }
 
     // Initialize energy monitor
-    mainsMonitor.begin();
+    mainsMonitor.begin(emon_config.calibration, emon_config.nominal_voltage);
 
     // Initialize ThingSpeak
     ThingSpeak.begin(client);
