@@ -1,0 +1,72 @@
+<!DOCTYPE HTML>
+<html lang="en" class="notranslate" translate="no">
+    <head>
+        <title>Energy Monitor</title>
+        <meta name="google" content="notranslate">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="static/bootstrap.min.css">
+        <script src="static/main.js"></script>
+    </head>
+    <body>
+        <div class="container pb-5">
+            <!-- Headder -->
+            <div class="row justify-content-center p-5 mb-2 text-white bg-dark border-bottom">
+                <div class="p-1 col-xs-6 col-sm-5 col-md-4 col-lg-3">
+                    <a href="/" class="text-decoration-none text-white">
+                        <H2>Energy Monitor</H2>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Configure settings -->
+            <div class="row p-1 justify-content-center">
+                <div class="col-xs-2 col-sm-4 col-md-4 col-lg-4 text-center">
+                    <H5>Configure Settings</H5>
+                </div>
+            </div>
+
+            <form action="settings" method="GET" enctype="text/plain">
+                <div class="mb-3">
+                    <label for="hostname" class="form-label">Hostname</label>
+                    <input type="text" class="form-control" name="hostname" id="hostname" value="%hostname%">
+                </div>
+                <div class="mb-3">
+                    <label for="api_key" class="form-label">API Key</label>
+                    <input type="text" class="form-control" name="api_key" id="api_key" value="%api_key%">
+                </div>
+                <div class="mb-3">
+                    <label for="channel" class="form-label">Channel ID</label>
+                    <input type="text" class="form-control" name="channel" id="channel" value="%channel%">
+                </div>
+                <div class="mb-3">
+                    <label for="calibration" class="form-label">Calibration Constant</label>
+                    <input type="text" class="form-control" name="calibration" id="calibration" value="%calibration%">
+                </div>
+                <div class="mb-3">
+                    <label for="nominal_voltage" class="form-label">Nominal Voltage</label>
+                    <input type="text" class="form-control" name="nominal_voltage" id="nominal_voltage" value="%nominal_voltage%">
+                </div>
+                <div class="mb-3">
+                    <label for="time_zone" class="form-label">Time Zone</label>
+                    <input type="text" class="form-control" name="time_zone" id="time_zone" value="%time_zone%">
+                </div>
+                <div class="mb-3">
+                    <label for="ntp_server" class="form-label">NTP Server</label>
+                    <input type="text" class="form-control" name="ntp_server" id="ntp_server" value="%ntp_server%">
+                </div>
+                <button type="submit" class="btn btn-primary" name="submit">Submit</button>
+                <a href="/" id="cancel" name="cancel" class="btn btn-secondary">Cancel</a>
+            </form>
+
+            <!-- Reset settings -->
+            <div class="row p-1 justify-content-center">
+                <div class="col-xs-2 col-sm-4 col-md-4 col-lg-4">
+                    <a href="/reset" id="reset-settings" class="w-100 btn btn-secondary" role="button" onClick="reset()">
+                        Reset settings
+                    </a>
+                </div>
+            </div>
+        </div>
+    </body>
+    <script type="text/javascript">initSettings()</script>
+</html>

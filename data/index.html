@@ -1,0 +1,61 @@
+<!DOCTYPE HTML>
+<html lang="en" class="notranslate" translate="no">
+    <head>
+        <title>Energy Monitor</title>
+        <meta name="google" content="notranslate">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="static/bootstrap.min.css">
+        <script src="static/main.js"></script>
+    </head>
+    <body>
+        <div class="container pb-5">
+            <!-- Headder -->
+            <div class="row justify-content-center p-5 mb-2 text-white bg-dark border-bottom">
+                <div class="p-1 col-xs-6 col-sm-5 col-md-4 col-lg-3">
+                    <H2>Energy Monitor</H2>
+                </div>
+            </div>
+
+            <!-- Energy used over time -->
+            <div class="row p-1 justify-content-center">
+                <div class="col-sm-6 mb-3 mb-sm-0 text-center">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Daily Energy Used</h5>
+                            <p class="card-text">%daily_kWh% kWh</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6 text-center">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Monthly Energy Used</h5>
+                            <p class="card-text">%monthly_kWh% kWh</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Watts currently in use -->
+            <div class="row p-1 justify-content-center">
+                <div class="col-sm-6 text-center">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Current Watts Used</h5>
+                            <p class="card-text">%watts% W</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings button -->
+            <div class="row p-1 justify-content-center">
+                <div class="col-xs-2 col-sm-4 col-md-4 col-lg-4">
+                    <a href="/settings" class="w-100 btn btn-secondary" role="button">
+                        Settings
+                    </a>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
