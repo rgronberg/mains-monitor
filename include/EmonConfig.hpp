@@ -24,6 +24,7 @@ public:
     void load_config();
     String read_config();
     void save_config();
+    void reset_config();
 };
 
 #endif // __EMONCONFIG_HPP__

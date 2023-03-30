@@ -77,3 +77,9 @@ void EmonConfig::save_config () {
 
     file.close();
 }
+
+void EmonConfig::reset_config() {
+    if (!LittleFS.remove(config_filename)) {
+        Serial.println("Could not remove config file");
+    }
+}
