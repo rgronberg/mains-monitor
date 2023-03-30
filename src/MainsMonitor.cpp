@@ -23,10 +23,10 @@ void MainsMonitor::process() {
     if ((millis() - last_process_time) > POLLING_PERIOD) {
         last_process_time = millis();
         digitalWrite(SENSOR_SELECT_PIN, LOW);
-        sensor_1_instant_watts = emon1.calcIrms(1480);
+        sensor_1_instant_watts = emon1.calcIrms(559);
         sensor_1_integration += sensor_1_instant_watts * POLLING_PERIOD_SECONDS;
         digitalWrite(SENSOR_SELECT_PIN, HIGH);
-        sensor_2_instant_watts = emon2.calcIrms(1480);
+        sensor_2_instant_watts = emon2.calcIrms(559);
         sensor_2_integration += sensor_2_instant_watts * POLLING_PERIOD_SECONDS;
         integration_duration += POLLING_PERIOD;
     }
