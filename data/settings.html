@@ -27,7 +27,7 @@
 
             <form action="settings" method="GET" enctype="text/plain">
                 <div class="mb-3">
-                    <label for="hostname" class="form-label">Hostname</label>
+                    <label for="hostname" class="form-label">Hostname <span class="fw-light">(device will reboot if changed)</span></label>
                     <input type="text" class="form-control" name="hostname" id="hostname" value="%hostname%">
                 </div>
                 <div class="mb-3">
@@ -39,7 +39,7 @@
                     <input type="text" class="form-control" name="channel" id="channel" value="%channel%">
                 </div>
                 <div class="mb-3">
-                    <label for="calibration" class="form-label">Calibration Constant</label>
+                    <label for="calibration" class="form-label">Calibration Constant <span class="fw-light">(new_calibration = current_calibration * actual_watts / current_watts)</span></label>
                     <input type="text" class="form-control" name="calibration" id="calibration" value="%calibration%">
                 </div>
                 <div class="mb-3">
