@@ -33,9 +33,8 @@ void setup() {
     Serial.println();
 
     emon_config.begin();
-    emon_config.load_config();
     Serial.println(emon_config.read_config());
-    emon_config.save_config();
+    emon_config.load_config();
 
     WiFi.begin("SSID", "PASSWORD");
 

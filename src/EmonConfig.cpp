@@ -42,6 +42,11 @@ void EmonConfig::load_config() {
     strlcpy(ntp_server, doc["ntp_server"] | "us.pool.ntp.org", sizeof(ntp_server));
 
     file.close();
+
+    // Save default config to disk if it does not exist
+    if (!LittleFS.exists(config_filename)) {
+        save_config();
+    }
 }
 
 String EmonConfig::read_config() {
