@@ -13,8 +13,13 @@
 class WebServer
 {
     private:
+        const unsigned long RESET_DELAY = 5000;
+
         bool serverReady = false;
-        int resetFlag = false;
+        bool resetFlag = false;
+        bool hostnameChanged = false;
+        unsigned long resetTime = 0;
+
         ESP8266WebServer server;
         EmonConfig *emonConfig;
         MainsMonitor *mainsMonitor;
@@ -25,8 +30,6 @@ class WebServer
         void handleIndex();
         void handleSettings();
         void handleReset();
-
-        // String templateProcessor(const String &templateString);
 
     public:
         WebServer(EmonConfig &emonConfig, MainsMonitor &mainsMonitor, WiFiManager &wifiManager);

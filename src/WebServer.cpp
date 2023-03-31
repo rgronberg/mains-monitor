@@ -25,10 +25,23 @@ void WebServer::begin() {
 }
 
 void WebServer::handleClient() {
-    if (resetFlag || mainsMonitor->should_reset() ) {
+    bool executeReset = false;
+
+    if ((resetFlag || mainsMonitor->should_reset() || hostnameChanged) && resetTime == 0) {
+        resetTime = millis();
+    }
+
+    if (resetTime != 0 && ((millis() - resetTime) > RESET_DELAY)) {
+        executeReset = true;
+    }
+
+    if (executeReset && (resetFlag || mainsMonitor->should_reset())) {
         emonConfig->reset_config();
         wifiManager->resetSettings();
-        delay(1000);
+        ESP.restart();
+    }
+
+    if (executeReset && hostnameChanged) {
         ESP.restart();
     }
 
@@ -122,6 +135,13 @@ void WebServer::handleSettings() {
             strlcpy(emonConfig->time_zone, server.arg("time_zone").c_str(), sizeof(emonConfig->time_zone));
             strlcpy(emonConfig->ntp_server, server.arg("ntp_server").c_str(), sizeof(emonConfig->ntp_server));
             emonConfig->save_config();
+
+            // New hostname differs, if so reboot device
+            if (WiFi.hostname() != emonConfig->hostname) {
+                Serial.printf("new hostname: %s, old hostname %s\n", emonConfig->hostname, WiFi.hostname().c_str());
+                Serial.println("Saving new hostname to config and rebooting");
+                hostnameChanged = true;
+            }
 
             // Update mainsMonitor with new calibration
             mainsMonitor->update_calibration();
