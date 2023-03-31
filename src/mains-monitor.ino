@@ -1,16 +1,16 @@
 //mains-monitor.ino
 
+#include <ESP8266NetBIOS.h>
 #include <WiFiManager.h>
-// #include <ESP8266WiFi.h>
-
-#include "EmonConfig.hpp"
-
-
 
 // #define PRINT_DEBUG_MESSAGES
 // #define PRINT_HTTP
 #include <ThingSpeak.h>
 
+ESP8266NetBIOS netBIOS;
+WiFiClient  client;
+
+#include "EmonConfig.hpp"
 #include "MainsMonitor.hpp"
 #include "WebServer.hpp"
 
@@ -18,8 +18,6 @@ EmonConfig emon_config;
 MainsMonitor mainsMonitor(emon_config);
 WiFiManager wifiManager;
 WebServer webServer(emon_config, mainsMonitor, wifiManager);
-
-WiFiClient  client;
 
 const char * myWriteAPIKey = "UNREALKEY";
 
@@ -36,22 +34,20 @@ void setup() {
     Serial.println(emon_config.read_config());
     emon_config.load_config();
 
-    WiFi.begin("SSID", "PASSWORD");
+    WiFi.mode(WIFI_STA);
+    WiFi.hostname(emon_config.hostname);
+    netBIOS.begin(emon_config.hostname);
 
-    if (WL_CONNECTED != WiFi.status()){
-        Serial.println("Attempting to connect to SSID: ");
-        while (WL_CONNECTED != WiFi.status()){
-          Serial.print(".");
-          delay(1000);
-        }
-        Serial.println("\nConnected.");
+    wifiManager.setConfigPortalBlocking(false);
+    wifiManager.setConfigPortalTimeout(120);
+    wifiManager.setConnectTimeout(30);
+
+    if (wifiManager.autoConnect(emon_config.hostname, "defaultpassword")) {
+        webServer.begin();
     }
 
     // Initialize energy monitor
     mainsMonitor.begin();
-
-    // Initialize
-    webServer.begin();
 
     // Initialize ThingSpeak
     ThingSpeak.begin(client);
@@ -60,6 +56,10 @@ void setup() {
 
 void loop()
 {
+    if (wifiManager.process()) {
+        webServer.begin();
+    }
+
     // Handle web server traffic
     webServer.handleClient();
 
