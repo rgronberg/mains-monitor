@@ -15,6 +15,9 @@ private:
     /***** Pins and constants *****/
     const unsigned int SENSOR_PIN = A0;
     const unsigned int SENSOR_SELECT_PIN = 4;
+    const unsigned int BUTTON_PIN = D3;
+    const unsigned long LONG_PRESS = 10000;     // ms
+    const unsigned long DEBOUNCE_DELAY = 50;    //ms
     const unsigned int NUMBER_OF_SAMPLES = 559;
     const unsigned long POLLING_PERIOD = 250;   // ms
     const double POLLING_PERIOD_SECONDS = 0.25; // s
@@ -44,6 +47,12 @@ private:
     void update_kWh_counters();
     void reset_kWh_counters();
 
+    /***** Reset handling *****/
+    bool reset_flag = false;
+    unsigned long last_debounce = 0;    // the last time the input pin was toggled
+    int button_state = HIGH;            // the current reading from the input pin
+    int last_button_state = HIGH;       // the previous reading from the input pin
+
 public:
     MainsMonitor(EmonConfig &emon_config);
     void begin();
@@ -54,6 +63,7 @@ public:
     double watts();
     double get_daily_kWh();
     double get_monthly_kWh();
+    bool should_reset();
 };
 
 #endif // __MAINSMONITOR_HPP__

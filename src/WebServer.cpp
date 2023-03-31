@@ -25,7 +25,7 @@ void WebServer::begin() {
 }
 
 void WebServer::handleClient() {
-    if (resetFlag /* || muxDriver->shouldReset() */) { // Maybe we should allow the flash button to reset?
+    if (resetFlag || mainsMonitor->should_reset() ) {
         emonConfig->reset_config();
         wifiManager->resetSettings();
         delay(1000);

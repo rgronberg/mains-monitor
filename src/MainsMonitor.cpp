@@ -79,6 +79,7 @@ MainsMonitor::MainsMonitor(EmonConfig &emon_config) {
 void MainsMonitor::begin() {
     // Initialize analog MUX and EmonLib instances
     pinMode(SENSOR_SELECT_PIN, OUTPUT);
+    pinMode(BUTTON_PIN, INPUT);
     update_calibration();
 
     // Set NTP callback
@@ -104,6 +105,41 @@ void MainsMonitor::process() {
     if (!wait_for_ntp) {
         reset_kWh_counters();
     }
+
+    // Reset button handling
+    // read the state of the switch into a local variable:
+    int reading = digitalRead(BUTTON_PIN);
+
+    // check to see if you just pressed the button
+    // (i.e. the input went from LOW to HIGH), and you've waited long enough
+    // since the last press to ignore any noise:
+
+    // If the switch changed, due to noise or pressing:
+    if (reading != last_button_state) {
+        // reset the debouncing timer
+        last_debounce = millis();
+    }
+
+    // Long button press should cause settings reset
+    if ((millis() - last_debounce) > LONG_PRESS &&
+            button_state == LOW &&
+            !reset_flag) {
+        reset_flag = true;
+        Serial.println("Reset by button press");
+    }
+
+    if ((millis() - last_debounce) > DEBOUNCE_DELAY) {
+        // whatever the reading is at, it's been there for longer than the debounce
+        // delay, so take it as the actual current state:
+
+        // if the button state has changed:
+        if (reading != button_state) {
+            button_state = reading;
+        }
+    }
+
+    // save the reading for the next time through the loop
+    last_button_state = reading;
 }
 
 double MainsMonitor::sensor_1_watts() {
@@ -123,4 +159,8 @@ double MainsMonitor::get_daily_kWh() {
 
 double MainsMonitor::get_monthly_kWh() {
     return monthly_kWh;
+}
+
+bool MainsMonitor::should_reset() {
+    return reset_flag;
 }
