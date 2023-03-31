@@ -16,6 +16,7 @@ void MainsMonitor::time_is_set(bool from_sntp) {
       Serial.print(F("time was sent! from_sntp=")); Serial.println(from_sntp);
     }
     wait_for_ntp = false;
+    last_reset_check = millis();
 }
 
 void MainsMonitor::update_kWh_counters() {
@@ -88,13 +89,7 @@ void MainsMonitor::begin() {
     // Configure timezone and NTP server
     configTime(emon_config->time_zone, emon_config->ntp_server);
 
-    // Wait for time from NTP server
-    while (wait_for_ntp) {
-        Serial.println("Waiting for time to be set from NTP");
-        delay(1000);
-    }
-
-    last_process_time = last_reset_check = millis();
+    last_process_time = millis();
 }
 
 void MainsMonitor::update_calibration() {
@@ -104,7 +99,11 @@ void MainsMonitor::update_calibration() {
 
 void MainsMonitor::process() {
     update_kWh_counters();
-    reset_kWh_counters();
+
+    // Only reset counters if we have time from NTP
+    if (!wait_for_ntp) {
+        reset_kWh_counters();
+    }
 }
 
 double MainsMonitor::sensor_1_watts() {
