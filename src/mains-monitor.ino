@@ -16,6 +16,10 @@ MainsMonitor mainsMonitor(emon_config);
 WiFiManager wifiManager;
 WebServer webServer(emon_config, mainsMonitor, wifiManager);
 
+// ThingSpeak config in wifiManager portal
+WiFiManagerParameter wmApiKey("api_key", "API Key", "", sizeof(emon_config.api_key));
+WiFiManagerParameter wmChannel("channel", "Channel ID", "0", 10); // Max base-10 length of unsigned long
+
 unsigned long last_report_time = 0;
 const unsigned long REPORT_PERIOD = 30 * 1000;  // Thirty seconds, ms
 
@@ -32,8 +36,11 @@ void setup() {
     WiFi.hostname(emon_config.hostname);
     netBIOS.begin(emon_config.hostname);
 
+    wifiManager.addParameter(&wmApiKey);
+    wifiManager.addParameter(&wmChannel);
+
     wifiManager.setConfigPortalBlocking(false);
-    wifiManager.setConfigPortalTimeout(120);
+    wifiManager.setConfigPortalTimeout(300);
     wifiManager.setConnectTimeout(30);
 
     if (wifiManager.autoConnect(emon_config.hostname, "defaultpassword")) {
@@ -52,6 +59,11 @@ void loop()
 {
     if (wifiManager.process()) {
         webServer.begin();
+
+        // Set config from portal and save to disk
+        strlcpy(emon_config.api_key, wmApiKey.getValue(), sizeof(emon_config.api_key));
+        emon_config.channel = strtoul(wmChannel.getValue(), NULL, 0);
+        emon_config.save_config();
     }
 
     // Handle web server traffic
