@@ -28,7 +28,7 @@ void EmonConfig::load_config() {
     snprintf(hostname, sizeof(hostname), doc["hostname"] | "emon-%d", ESP.getChipId());
     strlcpy(api_key, doc["api_key"] | "", sizeof(api_key));
     channel = doc["channel"] | 0;
-    calibration = doc["calibration"] | 62.75;
+    calibration = doc["calibration"] | 91.25;
     nominal_voltage = doc["nominal_voltage"] | 120.0;
     if (!doc["time_zone"]) {
         strncpy_P(time_zone, TZ_America_Los_Angeles, sizeof(time_zone));
