@@ -12,9 +12,12 @@
 #include <ThingSpeak.h>
 
 #include "MainsMonitor.hpp"
+#include "WebServer.hpp"
 
 EmonConfig emon_config;
 MainsMonitor mainsMonitor(emon_config);
+WiFiManager wifiManager;
+WebServer webServer(emon_config, mainsMonitor, wifiManager);
 
 WiFiClient  client;
 
@@ -48,6 +51,9 @@ void setup() {
     // Initialize energy monitor
     mainsMonitor.begin();
 
+    // Initialize
+    webServer.begin();
+
     // Initialize ThingSpeak
     ThingSpeak.begin(client);
     last_report_time = millis();
@@ -55,6 +61,9 @@ void setup() {
 
 void loop()
 {
+    // Handle web server traffic
+    webServer.handleClient();
+
     // Every POLLING_PERIOD, calculate watt-seconds
     // Integrate every reading over the course of REPORT_PERIOD
     mainsMonitor.process();
