@@ -5,8 +5,6 @@
 
 #include "EmonConfig.hpp"
 
-#include <coredecls.h>  // settimeofday_cb() callback
-#include <time.h>
 
 
 // #define PRINT_DEBUG_MESSAGES
@@ -16,37 +14,15 @@
 #include "MainsMonitor.hpp"
 
 EmonConfig emon_config;
-
-MainsMonitor mainsMonitor;
+MainsMonitor mainsMonitor(emon_config);
 
 WiFiClient  client;
-
-// Timekeeping globals
-time_t now;
-struct tm tm;
-
-bool wait_for_ntp = true;
 
 const char * myWriteAPIKey = "UNREALKEY";
 
 unsigned long last_report_time = 0;
 
 const unsigned long REPORT_PERIOD = 30 * 1000;  // Thirty seconds, ms
-const unsigned long REPORT_WATT_SECONDS = REPORT_PERIOD / 1000;
-
-double daily_KWh = 0.0;
-double monthly_KWh = 0.0;
-
-double watt_seconds_to_kwatt_hours(double watt_seconds) {
-    return watt_seconds / 3600000;
-}
-
-void time_is_set(bool from_sntp) {
-    if (wait_for_ntp) {
-      Serial.print(F("time was sent! from_sntp=")); Serial.println(from_sntp);
-    }
-    wait_for_ntp = false;
-}
 
 void setup() {
     // Initialize serial
@@ -69,22 +45,12 @@ void setup() {
         Serial.println("\nConnected.");
     }
 
-    // Set NTP callback
-    settimeofday_cb(time_is_set);
-
-    // Configure timezone and NTP server
-    configTime(emon_config.time_zone, emon_config.ntp_server);
-
-    while (wait_for_ntp) {
-        Serial.println("Waiting for time to be set from NTP");
-        delay(1000);
-    }
-
     // Initialize energy monitor
-    mainsMonitor.begin(emon_config.calibration, emon_config.nominal_voltage);
+    mainsMonitor.begin();
 
     // Initialize ThingSpeak
     ThingSpeak.begin(client);
+    last_report_time = millis();
 }
 
 void loop()
@@ -93,53 +59,19 @@ void loop()
     // Integrate every reading over the course of REPORT_PERIOD
     mainsMonitor.process();
 
-    // If REPORT_PERIOD has elapsed, report values and reset integration
+    // If REPORT_PERIOD has elapsed, report values
     if ((millis() - last_report_time) > REPORT_PERIOD) {
         last_report_time = millis();
         Serial.println();
 
-        // Reset the daily_kWh count at midnight. Might end up being reset twice
-        // Due to the 30s update frequencey
-        time(&now);
-        localtime_r(&now, &tm);
-        if (0 == tm.tm_hour && 0 == tm.tm_min) {
-            Serial.println("Midnight, reset daily_KWh");
-            daily_KWh = 0.0;
-            // Reset monthly_kWh integration on the 1st day of the month at midnight
-            if (16 == tm.tm_mday) {
-                Serial.println("First of the month, reset monthly_KWh");
-                monthly_KWh = 0.0;
-            }
-            Serial.println("#################################################");
-        }
-
-        double watts = mainsMonitor.watts();
-        double total_watt_seconds = mainsMonitor.sensor_1_watt_seconds() + mainsMonitor.sensor_2_watt_seconds();
-        double total_kwatt_hours = watt_seconds_to_kwatt_hours(total_watt_seconds);
-
-        // Only report 'real' update to ThingSpeak if more than 30 watt-seconds are used in REPORT_PERIOD
-        if (false && 30 > total_watt_seconds) {
-            watts = 0.0;
-        }
-        else {
-            daily_KWh += total_kwatt_hours;
-            monthly_KWh += total_kwatt_hours;
-        }
-
-        Serial.print("Sensor 1 (watt-seconds): ");
-        Serial.print(mainsMonitor.sensor_1_watt_seconds());
-        Serial.print(", Sensor 2 (watt-seconds): ");
-        Serial.println(mainsMonitor.sensor_2_watt_seconds());
-        Serial.print("Total KW hours: ");
-        Serial.println(total_kwatt_hours, 16);
-        Serial.print("daily_KWh: ");
-        Serial.println(daily_KWh, 16);
-        Serial.print("monthly_KWh: ");
-        Serial.println(monthly_KWh, 16);
+        Serial.print("daily_KWh:\t");
+        Serial.println(mainsMonitor.get_daily_kWh(), 16);
+        Serial.print("monthly_KWh:\t");
+        Serial.println(mainsMonitor.get_monthly_kWh(), 16);
 
         // Report fields to ThingSpeak
-        ThingSpeak.setField(1, (float)daily_KWh);
-        ThingSpeak.setField(2, (float)monthly_KWh);
+        ThingSpeak.setField(1, (float)mainsMonitor.get_daily_kWh());
+        ThingSpeak.setField(2, (float)mainsMonitor.get_monthly_kWh());
         ThingSpeak.setField(3, (float)mainsMonitor.watts());
         ThingSpeak.setField(4, (float)mainsMonitor.watts());
         int status_code = ThingSpeak.writeFields(0, myWriteAPIKey);
@@ -149,8 +81,5 @@ void loop()
         else {
             Serial.println("Problem updating channel. HTTP error code " + String(status_code));
         }
-
-        // Reset polling integration counters
-        mainsMonitor.reset_integration();
     }
 }
