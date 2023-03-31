@@ -2,9 +2,6 @@
 
 #include <ESP8266NetBIOS.h>
 #include <WiFiManager.h>
-
-// #define PRINT_DEBUG_MESSAGES
-// #define PRINT_HTTP
 #include <ThingSpeak.h>
 
 ESP8266NetBIOS netBIOS;
@@ -19,10 +16,7 @@ MainsMonitor mainsMonitor(emon_config);
 WiFiManager wifiManager;
 WebServer webServer(emon_config, mainsMonitor, wifiManager);
 
-const char * myWriteAPIKey = "UNREALKEY";
-
 unsigned long last_report_time = 0;
-
 const unsigned long REPORT_PERIOD = 30 * 1000;  // Thirty seconds, ms
 
 void setup() {
@@ -77,17 +71,22 @@ void loop()
         Serial.print("monthly_KWh:\t");
         Serial.println(mainsMonitor.get_monthly_kWh(), 16);
 
-        // Report fields to ThingSpeak
-        ThingSpeak.setField(1, (float)mainsMonitor.get_daily_kWh());
-        ThingSpeak.setField(2, (float)mainsMonitor.get_monthly_kWh());
-        ThingSpeak.setField(3, (float)mainsMonitor.watts());
-        ThingSpeak.setField(4, (float)mainsMonitor.watts());
-        int status_code = ThingSpeak.writeFields(0, myWriteAPIKey);
-        if(200 == status_code) {
-            Serial.println("Channel update successful.");
+        if (strnlen(emon_config.api_key, sizeof(emon_config.api_key)) > 0 && emon_config.channel != 0) {
+            // Report fields to ThingSpeak
+            ThingSpeak.setField(1, (float)mainsMonitor.get_daily_kWh());
+            ThingSpeak.setField(2, (float)mainsMonitor.get_monthly_kWh());
+            ThingSpeak.setField(3, (float)mainsMonitor.watts());
+            ThingSpeak.setField(4, (float)mainsMonitor.watts());
+            int status_code = ThingSpeak.writeFields(emon_config.channel, emon_config.api_key);
+            if(200 == status_code) {
+                Serial.println("Channel update successful.");
+            }
+            else {
+                Serial.println("Problem updating channel. HTTP error code " + String(status_code));
+            }
         }
         else {
-            Serial.println("Problem updating channel. HTTP error code " + String(status_code));
+            Serial.println("ThingSpeak settings not configured");
         }
     }
 }
