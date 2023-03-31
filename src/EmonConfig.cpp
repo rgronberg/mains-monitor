@@ -27,7 +27,7 @@ void EmonConfig::load_config() {
     // Read from config file if opened, else set defaults
     snprintf(hostname, sizeof(hostname), doc["hostname"] | "emon-%d", ESP.getChipId());
     strlcpy(api_key, doc["api_key"] | "", sizeof(api_key));
-    strlcpy(channel, doc["channel"] | "", sizeof(channel));
+    channel = doc["channel"] | 0;
     calibration = doc["calibration"] | 62.75;
     nominal_voltage = doc["nominal_voltage"] | 120.0;
     if (!doc["time_zone"]) {

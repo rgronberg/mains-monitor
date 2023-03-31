@@ -13,7 +13,7 @@ public:
     /***** Config values *****/
     char hostname[32];
     char api_key[32];
-    char channel[32];
+    unsigned long channel;
     double calibration;
     double nominal_voltage;
     char time_zone[48];

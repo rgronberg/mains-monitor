@@ -111,22 +111,44 @@ void WebServer::handleIndex() {
 
 void WebServer::handleSettings() {
     server.on("/settings", [this]() {
-        File settingsHtml = LittleFS.open("/settings.html", "r");
-        if (settingsHtml) {
-            String settingsHtmlString = settingsHtml.readString();
-            settingsHtmlString.replace("%hostname%", emonConfig->hostname);
-            settingsHtmlString.replace("%api_key%", emonConfig->api_key);
-            settingsHtmlString.replace("%channel%", emonConfig->channel);
-            settingsHtmlString.replace("%calibration%", String(emonConfig->calibration));
-            settingsHtmlString.replace("%nominal_voltage%", String(emonConfig->nominal_voltage));
-            settingsHtmlString.replace("%time_zone%", emonConfig->time_zone);
-            settingsHtmlString.replace("%ntp_server%", emonConfig->ntp_server);
-            server.send(200, "text/html", settingsHtmlString);
-            settingsHtml.close();
+        // Update settings in config and redirect to inex
+        if (server.args()) {
+            // Update values in config and save to disk
+            strlcpy(emonConfig->hostname, server.arg("hostname").c_str(), sizeof(emonConfig->hostname));
+            strlcpy(emonConfig->api_key, server.arg("api_key").c_str(), sizeof(emonConfig->api_key));
+            emonConfig->channel = server.arg("channel").toInt();
+            emonConfig->calibration = server.arg("calibration").toDouble();
+            emonConfig->nominal_voltage = server.arg("nominal_voltage").toDouble();
+            strlcpy(emonConfig->time_zone, server.arg("time_zone").c_str(), sizeof(emonConfig->time_zone));
+            strlcpy(emonConfig->ntp_server, server.arg("ntp_server").c_str(), sizeof(emonConfig->ntp_server));
+            emonConfig->save_config();
+
+            // Update mainsMonitor with new calibration
+            mainsMonitor->update_calibration();
+
+            // Redirect to index
+            server.sendHeader("Location", "/", true);
+            server.send(302, "text/plane", "");
         }
+        // Display settings form
         else {
-            server.send(503, "text/plain", "server error");
-       }
+            File settingsHtml = LittleFS.open("/settings.html", "r");
+            if (settingsHtml) {
+                String settingsHtmlString = settingsHtml.readString();
+                settingsHtmlString.replace("%hostname%", emonConfig->hostname);
+                settingsHtmlString.replace("%api_key%", emonConfig->api_key);
+                settingsHtmlString.replace("%channel%", String(emonConfig->channel));
+                settingsHtmlString.replace("%calibration%", String(emonConfig->calibration));
+                settingsHtmlString.replace("%nominal_voltage%", String(emonConfig->nominal_voltage));
+                settingsHtmlString.replace("%time_zone%", emonConfig->time_zone);
+                settingsHtmlString.replace("%ntp_server%", emonConfig->ntp_server);
+                server.send(200, "text/html", settingsHtmlString);
+                settingsHtml.close();
+            }
+            else {
+                server.send(503, "text/plain", "server error");
+            }
+        }
     });
 }
 
