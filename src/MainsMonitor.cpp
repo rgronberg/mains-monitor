@@ -64,7 +64,7 @@ void MainsMonitor::reset_kWh_counters() {
             Serial.println("Midnight, reset daily_KWh");
             daily_kWh = 0.0;
             // Reset monthly_kWh integration on the 1st day of the month at midnight
-            if (16 == tm.tm_mday) {
+            if (1 == tm.tm_mday) {
                 Serial.println("First of the month, reset monthly_KWh");
                 monthly_kWh = 0.0;
             }
