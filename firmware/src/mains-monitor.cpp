@@ -21,6 +21,7 @@ WebServer webServer(emon_config, mainsMonitor, wifiManager);
 // ThingSpeak config in wifiManager portal
 WiFiManagerParameter wmApiKey("api_key", "API Key", "", sizeof(emon_config.api_key));
 WiFiManagerParameter wmChannel("channel", "Channel ID", "0", 10); // Max base-10 length of unsigned long
+WiFiManagerParameter wmResetDate("reset_date", "Reset Date", "1", 10);
 
 unsigned long last_report_time = 0;
 const unsigned long REPORT_PERIOD = 30 * 1000;  // Thirty seconds, ms
@@ -40,6 +41,7 @@ void setup() {
 
     wifiManager.addParameter(&wmApiKey);
     wifiManager.addParameter(&wmChannel);
+    wifiManager.addParameter(&wmResetDate);
 
     wifiManager.setConfigPortalBlocking(false);
     wifiManager.setConfigPortalTimeout(300);
@@ -65,6 +67,7 @@ void loop()
         // Set config from portal and save to disk
         strlcpy(emon_config.api_key, wmApiKey.getValue(), sizeof(emon_config.api_key));
         emon_config.channel = strtoul(wmChannel.getValue(), NULL, 0);
+        emon_config.reset_date = atoi(wmResetDate.getValue());
         emon_config.save_config();
     }
 

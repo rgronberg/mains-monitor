@@ -132,6 +132,7 @@ void WebServer::handleSettings() {
             emonConfig->channel = server.arg("channel").toInt();
             emonConfig->calibration = server.arg("calibration").toDouble();
             emonConfig->nominal_voltage = server.arg("nominal_voltage").toDouble();
+            emonConfig->reset_date = server.arg("reset_date").toInt();
             strlcpy(emonConfig->time_zone, server.arg("time_zone").c_str(), sizeof(emonConfig->time_zone));
             strlcpy(emonConfig->ntp_server, server.arg("ntp_server").c_str(), sizeof(emonConfig->ntp_server));
             emonConfig->save_config();
@@ -160,6 +161,7 @@ void WebServer::handleSettings() {
                 settingsHtmlString.replace("%channel%", String(emonConfig->channel));
                 settingsHtmlString.replace("%calibration%", String(emonConfig->calibration));
                 settingsHtmlString.replace("%nominal_voltage%", String(emonConfig->nominal_voltage));
+                settingsHtmlString.replace("%reset_date%", String(emonConfig->reset_date));
                 settingsHtmlString.replace("%time_zone%", emonConfig->time_zone);
                 settingsHtmlString.replace("%ntp_server%", emonConfig->ntp_server);
                 server.send(200, "text/html", settingsHtmlString);

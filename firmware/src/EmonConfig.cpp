@@ -30,6 +30,7 @@ void EmonConfig::load_config() {
     channel = doc["channel"] | 0;
     calibration = doc["calibration"] | 91.25;
     nominal_voltage = doc["nominal_voltage"] | 120.0;
+    reset_date = doc["reset_date"] | 1;
     if (!doc["time_zone"]) {
         strncpy_P(time_zone, TZ_America_Los_Angeles, sizeof(time_zone));
         time_zone[sizeof(time_zone)-1] = 0;
@@ -73,6 +74,7 @@ void EmonConfig::save_config () {
     doc["channel"] = channel;
     doc["calibration"] = calibration;
     doc["nominal_voltage"] = nominal_voltage;
+    doc["reset_date"] = reset_date;
     doc["time_zone"] = time_zone;
     doc["ntp_server"] = ntp_server;
 

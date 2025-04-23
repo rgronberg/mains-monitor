@@ -16,6 +16,7 @@ public:
     unsigned long channel;
     double calibration;
     double nominal_voltage;
+    int reset_date;
     char time_zone[48];
     char ntp_server[48];
 

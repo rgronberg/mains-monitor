@@ -14,6 +14,7 @@ settings = {
     'channel': '',
     'calibration': '62.75',
     'nominal_voltage': '120.0',
+    'reset_date': '1',
     'time_zone': 'PST8PDT,M3.2.0,M11.1.0',
     'ntp_server': 'us.pool.ntp.org'
 }
@@ -90,6 +91,7 @@ class RequestHandler(http.server.BaseHTTPRequestHandler):
                 settingsHtmlText = settingsHtmlText.replace(r'%channel%', settings['channel'])
                 settingsHtmlText = settingsHtmlText.replace(r'%calibration%', settings['calibration'])
                 settingsHtmlText = settingsHtmlText.replace(r'%nominal_voltage%', settings['nominal_voltage'])
+                settingsHtmlText = settingsHtmlText.replace(r'%reset_date%', settings['reset_date'])
                 settingsHtmlText = settingsHtmlText.replace(r'%time_zone%', settings['time_zone'])
                 settingsHtmlText = settingsHtmlText.replace(r'%ntp_server%', settings['ntp_server'])
                 response = settingsHtmlText
